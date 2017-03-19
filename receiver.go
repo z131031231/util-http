@@ -66,7 +66,7 @@ func (u *Unpacker) Unpack() (err error) {
 		}
 	}
 
-	if stringSliceContent(u.req.Header["Content-type"], "text/json") {
+	if stringSliceContent(u.req.Header["Content-type"], "application/json") {
 		return u.unpackJSONParams()
 	}
 

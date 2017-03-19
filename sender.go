@@ -52,10 +52,10 @@ func (gs *GetSender) Request() (err error) {
 		if err != nil {
 			err = fmt.Errorf(
 				"使用GetSender发送请求的时候失败 <-- %s", err.Error())
-		}
 
-		if gs.logger != nil {
-			gs.logger.Error(err.Error())
+			if gs.logger != nil {
+				gs.logger.Error(err.Error())
+			}
 		}
 	}()
 
@@ -87,10 +87,10 @@ func (ps *PostSender) Request() (err error) {
 		if err != nil {
 			err = fmt.Errorf(
 				"使用PostSender发送请求的时候失败 <-- %s", err.Error())
-		}
 
-		if ps.logger != nil {
-			ps.logger.Error(err.Error())
+			if ps.logger != nil {
+				ps.logger.Error(err.Error())
+			}
 		}
 	}()
 
@@ -128,17 +128,17 @@ func (gs *GetSender) fillRequest() (fatReq *http.Request, err error) {
 
 	headerBytes, _ := json.Marshal(gs.headers)
 	if gs.logger != nil {
-		gs.logger.Infof("Ready post to: '%s' with header: '%s'",
+		gs.logger.Infof("Ready get: '%s' with header: '%s'",
 			gs.url, string(headerBytes))
 	}
 
-	req, err := http.NewRequest("GET", gs.url, nil)
+	fatReq, err = http.NewRequest("GET", gs.url, nil)
 	if err != nil {
 		return
 	}
 
 	for k, v := range gs.headers {
-		req.Header.Set(k, v)
+		fatReq.Header.Set(k, v)
 	}
 
 	return
@@ -157,13 +157,13 @@ func (ps *PostSender) fillRequest() (fatReq *http.Request, err error) {
 			ps.url, string(headerBytes), string(postBytes))
 	}
 
-	req, err := http.NewRequest("POST", ps.url, bytes.NewReader(postBytes))
+	fatReq, err = http.NewRequest("POST", ps.url, bytes.NewReader(postBytes))
 	if err != nil {
 		return
 	}
 
 	for k, v := range ps.headers {
-		req.Header.Set(k, v)
+		fatReq.Header.Set(k, v)
 	}
 
 	return
