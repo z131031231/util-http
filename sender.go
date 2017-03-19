@@ -1,4 +1,4 @@
-package jmq
+package easyhttp
 
 import (
 	"bytes"
@@ -8,35 +8,6 @@ import (
 	"net/http"
 	"net/url"
 )
-
-// Logger 日志记录接口
-type Logger interface {
-	Debug(v ...interface{})
-	Debugf(format string, v ...interface{})
-	Info(v ...interface{})
-	Infof(format string, v ...interface{})
-	Error(v ...interface{})
-	Errorf(format string, v ...interface{})
-}
-
-type baseSender struct {
-	url      string
-	headers  map[string]string
-	logger   Logger
-	receiver interface{}
-}
-
-// GetSender get请求发送器
-type GetSender struct {
-	baseSender
-	getParams map[string]string
-}
-
-// PostSender post请求发送器
-type PostSender struct {
-	GetSender
-	postData interface{}
-}
 
 // NewGetSender 创建post请求发送器
 func NewGetSender(
@@ -204,5 +175,10 @@ func (gs *GetSender) resolveResp(respContent []byte) (err error) {
 			gs.url, string(respContent))
 	}
 
-	return json.Unmarshal(respContent, gs.receiver)
+	if gs.receiver != nil {
+		return json.Unmarshal(respContent, gs.receiver)
+	}
+
+	gs.receiver = respContent
+	return
 }
