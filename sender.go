@@ -175,10 +175,15 @@ func (gs *GetSender) resolveResp(respContent []byte) (err error) {
 			gs.url, string(respContent))
 	}
 
+	gs.rawResp = respContent
 	if gs.receiver != nil {
 		return json.Unmarshal(respContent, gs.receiver)
 	}
 
-	gs.receiver = respContent
 	return
+}
+
+// GetRawResp 获取原始response的数据
+func (gs *GetSender) GetRawResp() (rawResp []byte) {
+	return gs.rawResp
 }

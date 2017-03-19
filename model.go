@@ -24,6 +24,7 @@ type baseSender struct {
 	headers  map[string]string
 	logger   Logger
 	receiver interface{}
+	rawResp  []byte
 }
 
 // GetSender get请求发送器
