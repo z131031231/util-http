@@ -118,7 +118,7 @@ func (ps *PostSender) Request() (err error) {
 
 func (gs *GetSender) fillRequest() (fatReq *http.Request, err error) {
 	if gs.getParams != nil {
-		queryParams := new(url.Values)
+		queryParams := url.Values{}
 		for k, v := range gs.getParams {
 			queryParams.Add(k, v)
 		}
@@ -171,7 +171,7 @@ func (ps *PostSender) fillRequest() (fatReq *http.Request, err error) {
 
 func (gs *GetSender) resolveResp(respContent []byte) (err error) {
 	if gs.logger != nil {
-		gs.logger.Infof("Post to: '%s' get response: '%s'",
+		gs.logger.Infof("get from: '%s' get response: '%s'",
 			gs.url, string(respContent))
 	}
 
