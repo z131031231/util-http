@@ -8,8 +8,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/juju/errors"
 )
 
 // NewUnpacker 创建request参数解析器
@@ -109,7 +107,7 @@ func (u *Unpacker) unpackJSONParams() (err error) {
 
 	body, err := ioutil.ReadAll(u.req.Body)
 	if err != nil {
-		return errors.Trace(err)
+		return
 	}
 
 	if u.logger != nil {
