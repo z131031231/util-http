@@ -48,6 +48,10 @@ func (u *Unpacker) Unpack() (err error) {
 			continue
 		}
 
+		if u.logger != nil {
+			u.logger.Infof("%s: %v", name, values)
+		}
+
 		for _, value := range values {
 			if f.Kind() == reflect.Slice {
 				elem := reflect.New(f.Type().Elem()).Elem()
@@ -109,7 +113,7 @@ func (u *Unpacker) unpackJSONParams() (err error) {
 	}
 
 	if u.logger != nil {
-		u.logger.Info(string(body))
+		u.logger.Infof("%v", body)
 	}
 
 	if len(body) > 0 {
