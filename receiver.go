@@ -31,40 +31,43 @@ func (u *Unpacker) Unpack() (err error) {
 	}
 
 	// 将receiver属性映射到map中
-	fields := make(map[string]reflect.Value)
-	v := reflect.ValueOf(u.receiver).Elem()
-	for i := 0; i < v.NumField(); i++ {
-		fieldInfo := v.Type().Field(i)
-		tag := fieldInfo.Tag
-		name := tag.Get("http")
-		if name == "" {
-			name = strings.ToLower(fieldInfo.Name)
-		}
-		fields[name] = v.Field(i)
-	}
-
-	// 从req.Form取值更新上面map的值
-	for name, values := range u.req.Form {
-		f := fields[name]
-		if !f.IsValid() {
-			continue
+	if reflect.TypeOf(u.receiver).Kind() == reflect.Ptr &&
+		reflect.TypeOf(u.receiver).Elem().Kind() == reflect.Struct {
+		fields := make(map[string]reflect.Value)
+		v := reflect.ValueOf(u.receiver).Elem()
+		for i := 0; i < v.NumField(); i++ {
+			fieldInfo := v.Type().Field(i)
+			tag := fieldInfo.Tag
+			name := tag.Get("http")
+			if name == "" {
+				name = strings.ToLower(fieldInfo.Name)
+			}
+			fields[name] = v.Field(i)
 		}
 
-		if u.logger != nil {
-			u.logger.Infof("%s: %v", name, values)
-		}
+		// 从req.Form取值更新上面map的值
+		for name, values := range u.req.Form {
+			f := fields[name]
+			if !f.IsValid() {
+				continue
+			}
 
-		for _, value := range values {
-			if f.Kind() == reflect.Slice {
-				elem := reflect.New(f.Type().Elem()).Elem()
-				if err := populate(elem, value); err != nil {
-					return fmt.Errorf("%s: %v", name, err)
-				}
-				f.Set(reflect.Append(f, elem))
+			if u.logger != nil {
+				u.logger.Infof("%s: %v", name, values)
+			}
 
-			} else {
-				if err := populate(f, value); err != nil {
-					return fmt.Errorf("%s: %v", name, err)
+			for _, value := range values {
+				if f.Kind() == reflect.Slice {
+					elem := reflect.New(f.Type().Elem()).Elem()
+					if err := populate(elem, value); err != nil {
+						return fmt.Errorf("%s: %v", name, err)
+					}
+					f.Set(reflect.Append(f, elem))
+
+				} else {
+					if err := populate(f, value); err != nil {
+						return fmt.Errorf("%s: %v", name, err)
+					}
 				}
 			}
 		}
