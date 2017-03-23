@@ -105,9 +105,9 @@ func (u *Unpacker) unpackJSONParams() (err error) {
 		return fmt.Errorf("request body 为空")
 	}
 
-	if u.req.Body != nil {
+	/* if u.req.Body != nil {
 		defer u.req.Body.Close()
-	}
+	} */
 
 	body, err := ioutil.ReadAll(u.req.Body)
 	if err != nil {
