@@ -119,7 +119,7 @@ func (u *Unpacker) unpackJSONParams() (err error) {
 	}
 
 	if u.logger != nil {
-		u.logger.Infof("%v", body)
+		u.logger.Info(string(body))
 	}
 
 	if len(body) > 0 {
