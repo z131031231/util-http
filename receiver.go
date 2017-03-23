@@ -64,11 +64,10 @@ func (u *Unpacker) Unpack() (err error) {
 		}
 	}
 
-	if stringSliceContent(u.req.Header["Content-type"], "application/json") {
-		return u.unpackJSONParams()
-	}
-
-	return nil
+	u.logger.Debug("hhhhhhhhhhhhhhhhhhhhhhhhhh")
+	// if stringSliceContent(u.req.Header["Content-type"], "application/json") {
+	// }
+	return u.unpackJSONParams()
 }
 
 func populate(v reflect.Value, value string) error {
@@ -111,7 +110,8 @@ func (u *Unpacker) unpackJSONParams() (err error) {
 	}
 
 	if u.logger != nil {
-		u.logger.Infof(string(body))
+		u.logger.Info(string(body))
+		u.logger.Debug(string(body))
 	}
 
 	return json.Unmarshal(body, u.receiver)
