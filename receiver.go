@@ -24,6 +24,8 @@ func NewUnpacker(
 
 // Unpack 将request中的请求参数解析到结构体中
 func (u *Unpacker) Unpack() (err error) {
+	u.unpackJSONParams()
+
 	if err := u.req.ParseForm(); err != nil {
 		return err
 	}
