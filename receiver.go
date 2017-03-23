@@ -64,7 +64,6 @@ func (u *Unpacker) Unpack() (err error) {
 		}
 	}
 
-	u.logger.Debug("hhhhhhhhhhhhhhhhhhhhhhhhhh")
 	// if stringSliceContent(u.req.Header["Content-type"], "application/json") {
 	// }
 	return u.unpackJSONParams()
@@ -111,10 +110,13 @@ func (u *Unpacker) unpackJSONParams() (err error) {
 
 	if u.logger != nil {
 		u.logger.Info(string(body))
-		u.logger.Debug(string(body))
 	}
 
-	return json.Unmarshal(body, u.receiver)
+	if len(body) > 0 {
+		return json.Unmarshal(body, u.receiver)
+	}
+
+	return
 }
 
 func stringSliceContent(strs []string, str string) bool {
