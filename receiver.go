@@ -70,9 +70,10 @@ func (u *Unpacker) Unpack() (err error) {
 		}
 	}
 
-	// if stringSliceContent(u.req.Header["Content-type"], "application/json") {
-	// }
-	return u.unpackJSONParams()
+	/* if stringSliceContent(u.req.Header["Content-type"], "application/json") {
+	}
+	return u.unpackJSONParams() */
+	return
 }
 
 func populate(v reflect.Value, value string) error {
