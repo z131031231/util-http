@@ -104,38 +104,37 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 }
 
 func populate(v reflect.Value, value string) (err error) {
-	rv := reflect.ValueOf(v).Elem()
 	switch v.Kind() {
 	case reflect.String:
-		rv.SetString(value)
+		v.SetString(value)
 
 	case reflect.Int:
 		i, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
 		}
-		rv.SetInt(i)
+		v.SetInt(i)
 
 	case reflect.Bool:
 		b, err := strconv.ParseBool(value)
 		if err != nil {
 			return err
 		}
-		rv.SetBool(b)
+		v.SetBool(b)
 
 	case reflect.Float32:
 		f, err := strconv.ParseFloat(value, 32)
 		if err != nil {
 			return err
 		}
-		rv.SetFloat(f)
+		v.SetFloat(f)
 
 	case reflect.Float64:
 		f, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			return err
 		}
-		rv.SetFloat(f)
+		v.SetFloat(f)
 
 	default:
 		return fmt.Errorf("unsupported kind %s", v.Type())
