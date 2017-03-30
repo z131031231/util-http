@@ -38,80 +38,107 @@ func (u *Unpacker) Unpack() (err error) {
 
 // unpackGetParams 解析GET参数到接收器中
 func (u *Unpacker) unpackGetParams() (err error) {
-	vars := mux.Vars(u.req)
 	if err = u.req.ParseForm(); err != nil {
 		return err
 	}
 
 	rt := reflect.TypeOf(u.receiver)
-	rv := reflect.ValueOf(u.receiver)
+	// rv := reflect.ValueOf(u.receiver)
 
 	if rt.Kind() == reflect.Ptr && rt.Elem().Kind() == reflect.Struct {
-		rt = rt.Elem()
-		rv = rv.Elem()
-
-	} else {
-		return
+		return u.unpackFieldFromParams(u.receiver)
 	}
 
-	for i := 0; i < rt.NumField(); i++ {
-		f := rt.Field(i)
-		key := f.Tag.Get("json")
-		if key == "" {
-			key = f.Name
-		}
+	return fmt.Errorf("解析参数类需要为 *struct 型，传入的是 %s", rt.String())
 
-		val := u.req.FormValue(key)
-		if val == "" && vars != nil {
-			val = vars[key]
-		}
+}
 
-		if u.logger != nil {
-			u.logger.Debugf("key:%v value:%v", key, val)
-		}
+func (u *Unpacker) getFormVal(key string) (val string) {
+	vars := mux.Vars(u.req)
+	val = u.req.FormValue(key)
+	if val == "" && vars != nil {
+		val = vars[key]
+	}
 
-		if err = populate(rv.Field(i), val); err != nil {
-			return
+	return
+}
+
+func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
+	rv := reflect.ValueOf(u.receiver).Elem()
+	rt := reflect.TypeOf(u.receiver).Elem()
+
+	switch rt.Kind() {
+	case reflect.Struct:
+		for i := 0; i < rt.NumField(); i++ {
+			f := rt.Field(i)
+			key := f.Tag.Get("json")
+			if key == "" {
+				key = f.Name
+			}
+
+			val := u.getFormVal(key)
+			if u.logger != nil {
+				u.logger.Debugf("key:%v value:%v", key, val)
+			}
+
+			switch rv.Field(i).Kind() {
+
+			case reflect.Ptr:
+				u.unpackFieldFromParams(rv.Field(i))
+			case reflect.Struct:
+				u.unpackFieldFromParams(rv.Field(i))
+			default:
+				populate(rv, u.getFormVal(key))
+			}
+
 		}
+	case reflect.Array:
+		for i := 0; i < rv.Len(); i++ {
+			u.unpackFieldFromParams(rv.Index(i))
+		}
+	default:
+		return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
 	}
 
 	return
 }
 
 func populate(v reflect.Value, value string) (err error) {
+	rv := reflect.ValueOf(v).Elem()
 	switch v.Kind() {
 	case reflect.String:
-		v.SetString(value)
+		rv.SetString(value)
 
 	case reflect.Int:
 		i, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
 		}
-		v.SetInt(i)
+		rv.SetInt(i)
 
 	case reflect.Bool:
 		b, err := strconv.ParseBool(value)
 		if err != nil {
 			return err
 		}
-		v.SetBool(b)
+		rv.SetBool(b)
+
 	case reflect.Float32:
 		f, err := strconv.ParseFloat(value, 32)
 		if err != nil {
 			return err
 		}
-		v.SetFloat(f)
+		rv.SetFloat(f)
 
 	case reflect.Float64:
 		f, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			return err
 		}
-		v.SetFloat(f)
+		rv.SetFloat(f)
 
-	case reflect.Ptr:
-		return populate(v.Elem(), value)
+	default:
+		return fmt.Errorf("unsupported kind %s", v.Type())
 	}
 
 	return
