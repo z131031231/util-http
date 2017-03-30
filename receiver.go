@@ -38,7 +38,7 @@ func (u *Unpacker) Unpack() (err error) {
 		for i := 0; i < v.NumField(); i++ {
 			fieldInfo := v.Type().Field(i)
 			tag := fieldInfo.Tag
-			name := tag.Get("http")
+			name := tag.Get("json")
 			if name == "" {
 				name = strings.ToLower(fieldInfo.Name)
 			}
