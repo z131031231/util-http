@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
-	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 // NewUnpacker 创建request参数解析器
@@ -24,62 +25,53 @@ func NewUnpacker(
 
 // Unpack 将request中的请求参数解析到结构体中
 func (u *Unpacker) Unpack() (err error) {
-	u.unpackJSONParams()
+	if err = u.unpackJSONParams(); err != nil {
+		return
+	}
 
-	if err := u.req.ParseForm(); err != nil {
+	return u.unpackGetParams()
+}
+
+// unpackGetParams 解析GET参数到接收器中
+func (u *Unpacker) unpackGetParams() (err error) {
+	vars := mux.Vars(u.req)
+	if err = u.req.ParseForm(); err != nil {
 		return err
 	}
 
-	// 将receiver属性映射到map中
-	if reflect.TypeOf(u.receiver).Kind() == reflect.Ptr &&
-		reflect.TypeOf(u.receiver).Elem().Kind() == reflect.Struct {
-		fields := make(map[string]reflect.Value)
-		v := reflect.ValueOf(u.receiver).Elem()
-		for i := 0; i < v.NumField(); i++ {
-			fieldInfo := v.Type().Field(i)
-			tag := fieldInfo.Tag
-			name := tag.Get("json")
-			if name == "" {
-				name = strings.ToLower(fieldInfo.Name)
-			}
-			fields[name] = v.Field(i)
+	rt := reflect.TypeOf(u.receiver)
+	rv := reflect.ValueOf(u.receiver)
+
+	if rt.Kind() == reflect.Ptr && rt.Elem().Kind() == reflect.Struct {
+		rt = rt.Elem()
+		rv = rv.Elem()
+	}
+
+	for i := 0; i < rt.NumField(); i++ {
+		f := rt.Field(i)
+		key := f.Tag.Get("json")
+		if key == "" {
+			key = f.Name
 		}
 
-		// 从req.Form取值更新上面map的值
-		for name, values := range u.req.Form {
-			f := fields[name]
-			if !f.IsValid() {
-				continue
-			}
+		val := u.req.FormValue(key)
+		if val == "" && vars != nil {
+			val = vars[key]
+		}
 
-			if u.logger != nil {
-				u.logger.Infof("%s: %v", name, values)
-			}
+		if u.logger != nil {
+			u.logger.Debugf("key:%v value:%v", key, val)
+		}
 
-			for _, value := range values {
-				if f.Kind() == reflect.Slice {
-					elem := reflect.New(f.Type().Elem()).Elem()
-					if err := populate(elem, value); err != nil {
-						return fmt.Errorf("%s: %v", name, err)
-					}
-					f.Set(reflect.Append(f, elem))
-
-				} else {
-					if err := populate(f, value); err != nil {
-						return fmt.Errorf("%s: %v", name, err)
-					}
-				}
-			}
+		if err = populate(rv.Field(i), val); err != nil {
+			return
 		}
 	}
 
-	/* if stringSliceContent(u.req.Header["Content-type"], "application/json") {
-	}
-	return u.unpackJSONParams() */
 	return
 }
 
-func populate(v reflect.Value, value string) error {
+func populate(v reflect.Value, value string) (err error) {
 	switch v.Kind() {
 	case reflect.String:
 		v.SetString(value)
@@ -101,7 +93,8 @@ func populate(v reflect.Value, value string) error {
 	default:
 		return fmt.Errorf("unsupported http value type: %s", v.Type())
 	}
-	return nil
+
+	return
 }
 
 func (u *Unpacker) unpackJSONParams() (err error) {
