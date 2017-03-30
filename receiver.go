@@ -25,6 +25,10 @@ func NewUnpacker(
 
 // Unpack 将request中的请求参数解析到结构体中
 func (u *Unpacker) Unpack() (err error) {
+	if u.receiver == nil {
+		return
+	}
+
 	if err = u.unpackJSONParams(); err != nil {
 		return
 	}
@@ -45,6 +49,9 @@ func (u *Unpacker) unpackGetParams() (err error) {
 	if rt.Kind() == reflect.Ptr && rt.Elem().Kind() == reflect.Struct {
 		rt = rt.Elem()
 		rv = rv.Elem()
+
+	} else {
+		return
 	}
 
 	for i := 0; i < rt.NumField(); i++ {
@@ -102,9 +109,9 @@ func (u *Unpacker) unpackJSONParams() (err error) {
 		return fmt.Errorf("request body 为空")
 	}
 
-	/* if u.req.Body != nil {
+	if u.req.Body != nil {
 		defer u.req.Body.Close()
-	} */
+	}
 
 	body, err := ioutil.ReadAll(u.req.Body)
 	if err != nil {
