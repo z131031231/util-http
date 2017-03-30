@@ -89,14 +89,16 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 				u.unpackFieldFromParams(rv.Field(i).Addr())
 
 			default:
-				populate(rv.Field(i).Addr(), u.getFormVal(key))
+				// populate(rv.Field(i).Addr(), u.getFormVal(key))
+				populate(rv.Field(i), u.getFormVal(key))
 			}
-
 		}
+
 	case reflect.Array:
 		for i := 0; i < rv.Len(); i++ {
 			u.unpackFieldFromParams(rv.Index(i).Addr())
 		}
+
 	default:
 		return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
 	}
@@ -104,9 +106,10 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 	return
 }
 
-func populate(v reflect.Value, value string) (err error) {
-	rv := v.Elem()
-	switch v.Elem().Kind() {
+func populate(rv reflect.Value, value string) (err error) {
+	// rv := v.Elem()
+	// switch v.Elem().Kind() {
+	switch rv.Kind() {
 	case reflect.String:
 		rv.SetString(value)
 
@@ -139,7 +142,8 @@ func populate(v reflect.Value, value string) (err error) {
 		rv.SetFloat(f)
 
 	default:
-		return fmt.Errorf("unsupported kind %s", v.Elem().Type().String())
+		// return fmt.Errorf("unsupported kind %s", v.Elem().Type().String())
+		return fmt.Errorf("unsupported kind %s", rv.Elem().Type().String())
 	}
 
 	return
