@@ -63,7 +63,7 @@ func (u *Unpacker) getFormVal(key string) (val string) {
 	return
 }
 
-func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
+func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 	rv := reflect.ValueOf(field).Elem()
 	rt := reflect.TypeOf(field).Elem()
 	// rv := reflect.ValueOf(field)
@@ -85,7 +85,7 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 
 			switch rv.Field(i).Kind() {
 			case reflect.Ptr:
-				u.unpackFieldFromParams(rv.Field(i))
+				u.unpackFieldFromParams(rv.Field(i).Addr())
 
 			case reflect.Struct:
 				u.unpackFieldFromParams(reflect.ValueOf(rv.Field(i)))
@@ -97,7 +97,7 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 		}
 	case reflect.Array:
 		for i := 0; i < rv.Len(); i++ {
-			u.unpackFieldFromParams(rv.Index(i))
+			u.unpackFieldFromParams(rv.Index(i).Addr())
 		}
 	default:
 		return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
