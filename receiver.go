@@ -85,7 +85,7 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 			case reflect.Ptr:
 				u.unpackFieldFromParams(rv.Field(i))
 			case reflect.Struct:
-				u.unpackFieldFromParams(rv.Field(i))
+				u.unpackFieldFromParams(rv.Field(i).Addr())
 			default:
 				populate(rv, u.getFormVal(key))
 			}
@@ -93,7 +93,7 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 		}
 	case reflect.Array:
 		for i := 0; i < rv.Len(); i++ {
-			u.unpackFieldFromParams(rv.Index(i))
+			u.unpackFieldFromParams(rv.Index(i).Addr())
 		}
 	default:
 		return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
