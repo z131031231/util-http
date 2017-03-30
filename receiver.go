@@ -64,8 +64,8 @@ func (u *Unpacker) getFormVal(key string) (val string) {
 }
 
 func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
-	rv := reflect.ValueOf(u.receiver).Elem()
-	rt := reflect.TypeOf(u.receiver).Elem()
+	rv := reflect.ValueOf(field).Elem()
+	rt := reflect.TypeOf(field).Elem()
 
 	switch rt.Kind() {
 	case reflect.Struct:
@@ -82,7 +82,6 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 			}
 
 			switch rv.Field(i).Kind() {
-
 			case reflect.Ptr:
 				u.unpackFieldFromParams(rv.Field(i))
 			case reflect.Struct:
