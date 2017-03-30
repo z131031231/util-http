@@ -89,7 +89,7 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 				u.unpackFieldFromParams(rv.Field(i).Addr())
 
 			default:
-				populate(rv.Addr(), u.getFormVal(key))
+				populate(rv.Field(i).Addr(), u.getFormVal(key))
 			}
 
 		}
@@ -106,7 +106,7 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 
 func populate(v reflect.Value, value string) (err error) {
 	rv := v.Elem()
-	switch v.Kind() {
+	switch v.Elem().Kind() {
 	case reflect.String:
 		rv.SetString(value)
 
