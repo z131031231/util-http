@@ -64,10 +64,6 @@ func (u *Unpacker) getFormVal(key string) (val string) {
 }
 
 func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
-	// rv := reflect.ValueOf(field).Elem()
-	// rt := reflect.TypeOf(field).Elem()
-	// rv := reflect.ValueOf(field)
-	// rt := reflect.TypeOf(field)
 	rv := field.Elem()
 	rt := field.Type().Elem()
 
@@ -90,7 +86,7 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 				u.unpackFieldFromParams(rv.Field(i).Addr())
 
 			case reflect.Struct:
-				u.unpackFieldFromParams(reflect.ValueOf(rv.Field(i)))
+				u.unpackFieldFromParams(rv.Field(i).Addr())
 
 			default:
 				populate(rv, u.getFormVal(key))
