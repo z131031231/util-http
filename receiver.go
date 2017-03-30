@@ -83,13 +83,12 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 
 			switch rv.Field(i).Kind() {
 			case reflect.Ptr:
-				u.unpackFieldFromParams(rv.Field(i).Addr())
+				u.unpackFieldFromParams(rv.Field(i))
 
 			case reflect.Struct:
 				u.unpackFieldFromParams(rv.Field(i).Addr())
 
 			default:
-				// populate(rv.Field(i).Addr(), u.getFormVal(key))
 				populate(rv.Field(i), u.getFormVal(key))
 			}
 		}
@@ -107,8 +106,6 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 }
 
 func populate(rv reflect.Value, value string) (err error) {
-	// rv := v.Elem()
-	// switch v.Elem().Kind() {
 	switch rv.Kind() {
 	case reflect.String:
 		rv.SetString(value)
@@ -142,8 +139,7 @@ func populate(rv reflect.Value, value string) (err error) {
 		rv.SetFloat(f)
 
 	default:
-		// return fmt.Errorf("unsupported kind %s", v.Elem().Type().String())
-		return fmt.Errorf("unsupported kind %s", rv.Elem().Type().String())
+		return fmt.Errorf("unsupported kind %s", rv.Type().String())
 	}
 
 	return
