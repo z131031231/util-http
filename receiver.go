@@ -84,8 +84,10 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 			switch rv.Field(i).Kind() {
 			case reflect.Ptr:
 				u.unpackFieldFromParams(rv.Field(i))
+
 			case reflect.Struct:
 				u.unpackFieldFromParams(rv.Field(i).Addr())
+
 			default:
 				populate(rv, u.getFormVal(key))
 			}
