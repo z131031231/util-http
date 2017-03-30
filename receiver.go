@@ -43,10 +43,10 @@ func (u *Unpacker) unpackGetParams() (err error) {
 	}
 
 	rt := reflect.TypeOf(u.receiver)
-	// rv := reflect.ValueOf(u.receiver)
+	rv := reflect.ValueOf(u.receiver)
 
 	if rt.Kind() == reflect.Ptr && rt.Elem().Kind() == reflect.Struct {
-		return u.unpackFieldFromParams(u.receiver)
+		return u.unpackFieldFromParams(rv.Elem())
 	}
 
 	return fmt.Errorf("解析参数类需要为 *struct 型，传入的是 %s", rt.String())
@@ -64,8 +64,10 @@ func (u *Unpacker) getFormVal(key string) (val string) {
 }
 
 func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
-	rv := reflect.ValueOf(field).Elem()
-	rt := reflect.TypeOf(field).Elem()
+	// rv := reflect.ValueOf(field).Elem()
+	// rt := reflect.TypeOf(field).Elem()
+	rv := reflect.ValueOf(field)
+	rt := reflect.TypeOf(field)
 
 	switch rt.Kind() {
 	case reflect.Struct:
@@ -86,7 +88,7 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 				u.unpackFieldFromParams(rv.Field(i))
 
 			case reflect.Struct:
-				u.unpackFieldFromParams(rv.Field(i).Addr())
+				u.unpackFieldFromParams(rv.Field(i))
 
 			default:
 				populate(rv, u.getFormVal(key))
@@ -95,7 +97,7 @@ func (u *Unpacker) unpackFieldFromParams(field interface{}) (err error) {
 		}
 	case reflect.Array:
 		for i := 0; i < rv.Len(); i++ {
-			u.unpackFieldFromParams(rv.Index(i).Addr())
+			u.unpackFieldFromParams(rv.Index(i))
 		}
 	default:
 		return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
