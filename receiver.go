@@ -96,9 +96,22 @@ func populate(v reflect.Value, value string) (err error) {
 			return err
 		}
 		v.SetBool(b)
+	case reflect.Float32:
+		f, err := strconv.ParseFloat(value, 32)
+		if err != nil {
+			return err
+		}
+		v.SetFloat(f)
 
-	default:
-		return fmt.Errorf("unsupported http value type: %s", v.Type())
+	case reflect.Float64:
+		f, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return err
+		}
+		v.SetFloat(f)
+
+	case reflect.Ptr:
+		return populate(v.Elem(), value)
 	}
 
 	return
