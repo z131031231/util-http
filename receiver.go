@@ -71,6 +71,9 @@ func (u *Unpacker) unpackFieldFromParams(
 
 	switch rt.Kind() {
 	case reflect.Ptr:
+		if rv.IsNil() {
+			rv.Set(reflect.New(rv.Type().Elem()))
+		}
 		u.unpackFieldFromParams(rv.Elem(), varName)
 
 	case reflect.Struct:
@@ -89,6 +92,9 @@ func (u *Unpacker) unpackFieldFromParams(
 			rfv := rv.Field(i)
 			switch rfv.Kind() {
 			case reflect.Ptr:
+				if rfv.IsNil() {
+					rfv.Set(reflect.New(rfv.Type().Elem()))
+				}
 				err = u.unpackFieldFromParams(rfv.Elem(), key)
 
 			case reflect.Struct:
