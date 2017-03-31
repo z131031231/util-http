@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"unsafe"
 
 	"github.com/gorilla/mux"
 )
@@ -94,12 +93,14 @@ func (u *Unpacker) unpackFieldFromParams(
 			rfv := rv.Field(i)
 			switch rfv.Kind() {
 			case reflect.Ptr:
-				if rfv.IsNil() {
-					// rfv.Set(reflect.New(rfv.Type()).Elem())
-					rfv.SetPointer(
-						unsafe.Pointer(
-							reflect.New(rfv.Type()).Elem().Pointer()))
-				}
+				rfv.IsNil()
+				// if rfv.IsNil() {
+				// rfv.Set(reflect.New(rfv.Type()).Elem())
+				/* rfv.SetPointer(
+				unsafe.Pointer(
+					reflect.New(rfv.Type().Elem()).Pointer())) */
+				rfv.Set(reflect.New(rfv.Type().Elem()))
+				// }
 				err = u.unpackFieldFromParams(rfv.Elem(), key)
 
 			case reflect.Struct:
