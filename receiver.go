@@ -66,16 +66,15 @@ func (u *Unpacker) getFormVal(key string) (val string) {
 
 func (u *Unpacker) unpackFieldFromParams(
 	field reflect.Value, varName string) (err error) {
-	// rv := field.Elem()
-	// rt := field.Type().Elem()
 	rv := field
 	rt := field.Type()
 
 	switch rt.Kind() {
 	case reflect.Ptr:
-		if !rv.IsNil() {
-			u.unpackFieldFromParams(rv.Elem(), varName)
+		if rv.IsNil() {
+			rv.Set(reflect.New(rt.Elem()))
 		}
+		u.unpackFieldFromParams(rv.Elem(), varName)
 
 	case reflect.Struct:
 		for i := 0; i < rt.NumField(); i++ {
@@ -93,18 +92,12 @@ func (u *Unpacker) unpackFieldFromParams(
 			rfv := rv.Field(i)
 			switch rfv.Kind() {
 			case reflect.Ptr:
-				rfv.IsNil()
-				// if rfv.IsNil() {
-				// rfv.Set(reflect.New(rfv.Type()).Elem())
-				/* rfv.SetPointer(
-				unsafe.Pointer(
-					reflect.New(rfv.Type().Elem()).Pointer())) */
-				rfv.Set(reflect.New(rfv.Type().Elem()))
-				// }
+				if rfv.IsNil() {
+					rfv.Set(reflect.New(rfv.Type().Elem()))
+				}
 				err = u.unpackFieldFromParams(rfv.Elem(), key)
 
 			case reflect.Struct:
-				// u.unpackFieldFromParams(rv.Field(i).Addr())
 				err = u.unpackFieldFromParams(rfv, key)
 
 			case reflect.Array, reflect.Map:
@@ -127,7 +120,6 @@ func (u *Unpacker) unpackFieldFromParams(
 		break
 
 	default:
-		// return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
 		val := u.getFormVal(varName)
 		if len(val) > 0 {
 			err = populate(field, val)
