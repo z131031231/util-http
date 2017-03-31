@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -46,7 +47,7 @@ func (u *Unpacker) unpackGetParams() (err error) {
 	rv := reflect.ValueOf(u.receiver)
 
 	if rt.Kind() == reflect.Ptr && rt.Elem().Kind() == reflect.Struct {
-		return u.unpackFieldFromParams(rv)
+		return u.unpackFieldFromParams(rv.Elem(), "")
 	}
 
 	return fmt.Errorf("解析参数类需要为 *struct 型，传入的是 %s", rt.String())
@@ -63,17 +64,25 @@ func (u *Unpacker) getFormVal(key string) (val string) {
 	return
 }
 
-func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
-	rv := field.Elem()
-	rt := field.Type().Elem()
+func (u *Unpacker) unpackFieldFromParams(
+	field reflect.Value, varName string) (err error) {
+	// rv := field.Elem()
+	// rt := field.Type().Elem()
+	rv := field
+	rt := field.Type()
 
 	switch rt.Kind() {
+	case reflect.Ptr:
+		if !rv.IsNil() {
+			u.unpackFieldFromParams(rv.Elem(), varName)
+		}
+
 	case reflect.Struct:
 		for i := 0; i < rt.NumField(); i++ {
-			f := rt.Field(i)
-			key := f.Tag.Get("json")
+			tf := rt.Field(i)
+			key := tf.Tag.Get("json")
 			if key == "" {
-				key = f.Name
+				key = strings.ToLower(tf.Name)
 			}
 
 			val := u.getFormVal(key)
@@ -81,25 +90,33 @@ func (u *Unpacker) unpackFieldFromParams(field reflect.Value) (err error) {
 				u.logger.Debugf("key:%v value:%v", key, val)
 			}
 
-			switch rv.Field(i).Kind() {
+			vf := rv.Field(i)
+			switch vf.Kind() {
 			case reflect.Ptr:
-				u.unpackFieldFromParams(rv.Field(i))
+				if vf.IsNil() {
+					vf.Set(reflect.New(vf.Type()))
+				}
+				err = u.unpackFieldFromParams(vf, key)
 
 			case reflect.Struct:
-				u.unpackFieldFromParams(rv.Field(i).Addr())
+				// u.unpackFieldFromParams(rv.Field(i).Addr())
+				err = u.unpackFieldFromParams(vf, key)
 
 			default:
-				populate(rv.Field(i), u.getFormVal(key))
+				err = populate(vf, key)
+			}
+
+			if err != nil {
+				break
 			}
 		}
 
-	case reflect.Array:
-		for i := 0; i < rv.Len(); i++ {
-			u.unpackFieldFromParams(rv.Index(i).Addr())
-		}
+	case reflect.Array, reflect.Map:
+		break
 
 	default:
-		return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
+		// return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
+		err = populate(field, varName)
 	}
 
 	return
