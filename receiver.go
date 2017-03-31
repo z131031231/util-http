@@ -30,11 +30,14 @@ func (u *Unpacker) Unpack() (err error) {
 		return
 	}
 
-	if err = u.unpackGetParams(); err != nil {
-		return
+	if u.req.Method == "GET" {
+		err = u.unpackGetParams()
+
+	} else if u.req.Method == "POST" {
+		err = u.unpackJSONParams()
 	}
 
-	return u.unpackJSONParams()
+	return
 }
 
 // unpackGetParams 解析GET参数到接收器中
