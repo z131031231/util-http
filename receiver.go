@@ -95,12 +95,12 @@ func (u *Unpacker) unpackFieldFromParams(
 			switch rfv.Kind() {
 			case reflect.Ptr:
 				if rfv.IsNil() {
-					rfv.Set(reflect.New(rfv.Type()).Elem())
+					// rfv.Set(reflect.New(rfv.Type()).Elem())
 					rfv.SetPointer(
 						unsafe.Pointer(
 							reflect.New(rfv.Type()).Elem().Pointer()))
 				}
-				err = u.unpackFieldFromParams(rfv, key)
+				err = u.unpackFieldFromParams(rfv.Elem(), key)
 
 			case reflect.Struct:
 				// u.unpackFieldFromParams(rv.Field(i).Addr())
