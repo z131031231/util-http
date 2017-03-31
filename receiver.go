@@ -90,24 +90,27 @@ func (u *Unpacker) unpackFieldFromParams(
 				u.logger.Debugf("key:%v value:%v", key, val)
 			}
 
-			if len(val) < 1 {
-				continue
-			}
-
-			vf := rv.Field(i)
-			switch vf.Kind() {
+			rfv := rv.Field(i)
+			switch rfv.Kind() {
 			case reflect.Ptr:
-				if vf.IsNil() {
-					vf.Set(reflect.New(vf.Type()))
+				if rfv.IsNil() {
+					rfv.Set(reflect.New(rfv.Type()))
 				}
-				err = u.unpackFieldFromParams(vf, key)
+				err = u.unpackFieldFromParams(rfv, key)
 
 			case reflect.Struct:
 				// u.unpackFieldFromParams(rv.Field(i).Addr())
-				err = u.unpackFieldFromParams(vf, key)
+				err = u.unpackFieldFromParams(rfv, key)
+
+			case reflect.Array, reflect.Map:
+				continue
 
 			default:
-				err = populate(vf, val)
+				if len(val) < 1 {
+					continue
+				}
+
+				err = populate(rfv, val)
 			}
 
 			if err != nil {
