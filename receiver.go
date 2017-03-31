@@ -94,7 +94,7 @@ func (u *Unpacker) unpackFieldFromParams(
 			switch rfv.Kind() {
 			case reflect.Ptr:
 				if rfv.IsNil() {
-					rfv = reflect.New(rfv.Type())
+					rfv.Set(reflect.New(rfv.Type()).Elem())
 				}
 				err = u.unpackFieldFromParams(rfv, key)
 
