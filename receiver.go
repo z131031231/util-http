@@ -90,6 +90,10 @@ func (u *Unpacker) unpackFieldFromParams(
 				u.logger.Debugf("key:%v value:%v", key, val)
 			}
 
+			if len(val) < 1 {
+				continue
+			}
+
 			vf := rv.Field(i)
 			switch vf.Kind() {
 			case reflect.Ptr:
@@ -103,7 +107,7 @@ func (u *Unpacker) unpackFieldFromParams(
 				err = u.unpackFieldFromParams(vf, key)
 
 			default:
-				err = populate(vf, key)
+				err = populate(vf, val)
 			}
 
 			if err != nil {
@@ -116,7 +120,11 @@ func (u *Unpacker) unpackFieldFromParams(
 
 	default:
 		// return fmt.Errorf("无法解析GET接收类型： %s", rt.String())
-		err = populate(field, varName)
+		val := u.getFormVal(varName)
+		if len(val) > 0 {
+			err = populate(field, val)
+		}
+
 	}
 
 	return
