@@ -75,10 +75,16 @@ func (gs *GetSender) Request() (err error) {
 	if err != nil {
 		return
 	}
+	if gs.logger != nil {
+		gs.logger.Debug(resp.Body)
+	}
 
 	bodyContent, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
+	}
+	if gs.logger != nil {
+		gs.logger.Debug(bodyContent)
 	}
 
 	return gs.resolveResp(bodyContent)
