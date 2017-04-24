@@ -63,6 +63,9 @@ func (gs *GetSender) Request() (err error) {
 	if err != nil {
 		return
 	}
+	if gs.logger != nil {
+		gs.logger.Debug(*req)
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
