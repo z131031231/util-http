@@ -146,6 +146,7 @@ func (gs *GetSender) fillRequest() (fatReq *http.Request, err error) {
 		return
 	}
 
+	fatReq.Header.Set("Accept-Encoding", "")
 	for k, v := range gs.headers {
 		fatReq.Header.Set(k, v)
 	}
