@@ -84,7 +84,7 @@ func (gs *GetSender) Request() (err error) {
 		return
 	}
 	if gs.logger != nil {
-		gs.logger.Debug(bodyContent)
+		gs.logger.Debug(string(bodyContent))
 	}
 
 	return gs.resolveResp(bodyContent)
