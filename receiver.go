@@ -53,7 +53,7 @@ func (u *Unpacker) unpackGetParams() (err error) {
 		return u.unpackFieldFromParams(rv.Elem(), "")
 	}
 
-	return fmt.Errorf("解析参数类需要为 *struct 型，传入的是 %s", rt.String())
+	return fmt.Errorf("解析参数类型需要为 *struct ，传入的是 %s", rt.String())
 
 }
 
