@@ -9,7 +9,7 @@ import (
 	"net/url"
 )
 
-// NewGetSender 创建post请求发送器
+// NewGetSender 创建get请求发送器
 func NewGetSender(
 	url string, headers map[string]string, getParams map[string]string,
 	receiver interface{}, logger Logger) (sender *GetSender) {
