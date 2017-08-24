@@ -8,7 +8,7 @@ import (
 // Mouthpiece 返回response的结果，记录错误日志
 type Mouthpiece struct {
 	resp    http.ResponseWriter
-	err     error
+	Err     error  `json:"-"`
 	Message string `json:"message"`
 	Status  int    `json:"status"`
 
@@ -25,14 +25,14 @@ func NewMouthpiece(resp http.ResponseWriter) (mp *Mouthpiece) {
 
 // SetError 设置错误信息
 func (mp *Mouthpiece) SetError(err error) {
-	mp.err = err
+	mp.Err = err
 }
 
 // Convey 将执行结果使用http response返回
 func (mp *Mouthpiece) Convey() (err error) {
-	if mp.err != nil {
+	if mp.Err != nil {
 		mp.Status = -1
-		mp.Message = mp.err.Error()
+		mp.Message = mp.Err.Error()
 
 	} else {
 		mp.Status = 0
