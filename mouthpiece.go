@@ -15,11 +15,27 @@ type Mouthpiece struct {
 	Data interface{} `json:"data,omitempty"`
 }
 
+// NewMouthpiece 创建传话筒
+func NewMouthpiece(resp http.ResponseWriter) (mp *Mouthpiece) {
+	mp = new(Mouthpiece)
+	mp.resp = resp
+	mp.Status = -1
+	return
+}
+
+// SetError 设置错误信息
+func (mp *Mouthpiece) SetError(err error) {
+	mp.err = err
+}
+
 // Convey 将执行结果使用http response返回
 func (mp *Mouthpiece) Convey() (err error) {
 	if mp.err != nil {
 		mp.Status = -1
 		mp.Message = mp.err.Error()
+
+	} else {
+		mp.Status = 0
 	}
 
 	err = Response(mp.resp, mp)
