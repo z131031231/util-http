@@ -1,4 +1,4 @@
-package dbUtil
+package easyhttp
 
 import (
 	"encoding/json"
