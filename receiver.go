@@ -138,7 +138,7 @@ func populate(rv reflect.Value, value string) (err error) {
 	case reflect.String:
 		rv.SetString(value)
 
-	case reflect.Int:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		i, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
