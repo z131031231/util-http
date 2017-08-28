@@ -49,6 +49,9 @@ func Response(resp http.ResponseWriter, result interface{}) (err error) {
 		return
 	}
 
-	_, err = resp.Write(respMsg)
+	respStr := string(respMsg)
+	// respStr, _ = strconv.Unquote(`"` + respStr + `"`)
+
+	_, err = resp.Write([]byte(respStr))
 	return
 }
