@@ -3,6 +3,7 @@ package easyhttp
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 // Mouthpiece 返回response的结果，记录错误日志
@@ -50,7 +51,7 @@ func Response(resp http.ResponseWriter, result interface{}) (err error) {
 	}
 
 	respStr := string(respMsg)
-	// respStr, _ = strconv.Unquote(`"` + respStr + `"`)
+	respStr, _ = strconv.Unquote(`"` + respStr + `"`)
 
 	_, err = resp.Write([]byte(respStr))
 	return
