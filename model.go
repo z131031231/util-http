@@ -42,6 +42,6 @@ type PostSender struct {
 // RespReceiver request结果接收器
 type RespReceiver struct {
 	Status  int         `json:"status"`
-	Message bool        `json:"message"`
+	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }
