@@ -51,7 +51,7 @@ func (gs *GetSender) Request() (err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf(
-				"使用GetSender发送请求的时候失败 <-- %s", err.Error())
+				"使用 GetSender 发送请求的时候失败 <-- %s", err.Error())
 
 			if gs.logger != nil {
 				gs.logger.Error(err.Error())
