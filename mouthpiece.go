@@ -3,6 +3,7 @@ package easyhttp
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 // Mouthpiece 返回response的结果，记录错误日志
@@ -48,6 +49,13 @@ func Response(resp http.ResponseWriter, result interface{}) (err error) {
 	if err != nil {
 		return
 	}
+
+	respStr := string(respMsg)
+	replacer := strings.NewReplacer(
+		"\\u0026", "&",
+		"\\u003c", "<",
+		"\\u003e", ">")
+	respMsg = []byte(replacer.Replace(respStr))
 
 	_, err = resp.Write(respMsg)
 	return
