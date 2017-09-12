@@ -2,6 +2,7 @@ package easyhttp
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -27,6 +28,18 @@ func NewMouthpiece(resp http.ResponseWriter) (mp *Mouthpiece) {
 // SetError 设置错误信息
 func (mp *Mouthpiece) SetError(err error) {
 	mp.Err = err
+}
+
+// Convey 将执行结果使用http response返回
+func (mp *Mouthpiece) String() (strContent string) {
+	jsonContent, err := json.Marshal(mp)
+	if err != nil {
+		strContent = err.Error()
+	}
+
+	strContent = string(jsonContent)
+	strContent = fmt.Sprintf("准备Response：%s", strContent)
+	return
 }
 
 // Convey 将执行结果使用http response返回
