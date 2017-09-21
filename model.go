@@ -45,3 +45,16 @@ type RespReceiver struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }
+
+// Paginator 分页显示结果收集器
+type Paginator struct {
+	Rows  interface{} `json:"rows"`
+	Total int         `json:"total"`
+}
+
+// NewPaginator 创建分页显示结果收集器
+func NewPaginator() (pgt *Paginator) {
+	pgt = new(Paginator)
+	pgt.Rows = make([]string, 0)
+	return
+}
