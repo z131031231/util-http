@@ -46,6 +46,13 @@ type RespReceiver struct {
 	Data    interface{} `json:"data"`
 }
 
+// NewRespReceiver 创建request结果接收器
+func NewRespReceiver() (rr *RespReceiver) {
+	rr = new(RespReceiver)
+	rr.Status = -1
+	return
+}
+
 // Paginator 分页显示结果收集器
 type Paginator struct {
 	Rows  interface{} `json:"rows"`
