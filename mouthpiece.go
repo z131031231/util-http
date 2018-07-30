@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+// ErrorStatus 返回包含不同状态的错误信息
+type ErrorStatus interface {
+	Status() int
+}
+
 // Mouthpiece 返回response的结果，记录错误日志
 type Mouthpiece struct {
 	resp    http.ResponseWriter
@@ -45,7 +50,12 @@ func (mp *Mouthpiece) String() (strContent string) {
 // Convey 将执行结果使用http response返回
 func (mp *Mouthpiece) Convey() (err error) {
 	if mp.Err != nil {
-		mp.Status = -1
+		if se, ok := mp.Err.(ErrorStatus); ok {
+			mp.Status = se.Status()
+
+		} else {
+			mp.Status = -1
+		}
 		mp.Message = mp.Err.Error()
 
 	} else {
