@@ -60,6 +60,7 @@ func (mp *Mouthpiece) Convey() (err error) {
 
 	} else {
 		mp.Status = 0
+		mp.Message = "OK"
 	}
 
 	err = Response(mp.resp, mp)
